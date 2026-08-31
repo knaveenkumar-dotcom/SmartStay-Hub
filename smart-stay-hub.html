@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Stay Hub — Smart PG Hostel Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e14;
+  --bg-elev:#10151f;
+  --bg-card:#131924;
+  --bg-card-hover:#161d2b;
+  --border:#212a3a;
+  --border-soft:#1a212f;
+  --text:#e8edf5;
+  --text-dim:#8b97ac;
+  --text-faint:#5a6478;
+  --accent:#22d3ee;
+  --accent-dim:#0e7490;
+  --accent-glow:rgba(34,211,238,0.15);
+  --green:#34d399;
+  --green-dim:rgba(52,211,153,0.14);
+  --orange:#fbbf24;
+  --orange-dim:rgba(251,191,36,0.14);
+  --red:#fb7185;
+  --red-dim:rgba(251,113,133,0.14);
+  --grey:#64748b;
+  --grey-dim:rgba(100,116,139,0.14);
+  --blue:#60a5fa;
+  --blue-dim:rgba(96,165,250,0.14);
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 8px 30px -8px rgba(0,0,0,0.5);
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 100% 0%, rgba(34,211,238,0.06), transparent 60%),
+    radial-gradient(900px 500px at 0% 100%, rgba(96,165,250,0.05), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+button{font-family:inherit;cursor:pointer;}
+.app{display:flex;min-height:100vh;}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:250px;flex-shrink:0;background:var(--bg-elev);
+  border-right:1px solid var(--border-soft);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:50;
+  transition:transform .3s ease;
+}
+.sidebar-brand{
+  padding:22px 20px;border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;gap:10px;
+}
+.brand-mark{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;color:#031014;font-size:15px;
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.brand-text .t1{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.3px;}
+.brand-text .t2{font-size:10.5px;color:var(--text-faint);letter-spacing:.2px;}
+.nav{padding:14px 10px;overflow-y:auto;flex:1;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);
+  color:var(--text-dim);font-size:13.5px;font-weight:500;cursor:pointer;
+  border:1px solid transparent;transition:all .15s ease;margin-bottom:2px;
+  background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--bg-card);color:var(--text);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(34,211,238,0.25);}
+.nav-item .ico{width:17px;text-align:center;font-size:14px;opacity:.9;}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:#1a0508;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:8px;
+}
+.sidebar-foot{padding:14px 18px;border-top:1px solid var(--border-soft);font-size:10.5px;color:var(--text-faint);}
+
+/* ---------- Main ---------- */
+.main{margin-left:250px;flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(10,14,20,0.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-soft);
+  padding:14px 26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+}
+.hamburger{display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;color:var(--text);font-size:16px;}
+.topbar-title{font-family:var(--font-display);font-weight:600;font-size:15px;margin-right:auto;}
+.topbar-title span{color:var(--text-faint);font-weight:400;font-size:11.5px;display:block;font-family:var(--font-body);}
+.status-chip{
+  display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);
+  background:var(--bg-card);border:1px solid var(--border-soft);padding:6px 11px;border-radius:20px;
+  font-family:var(--font-mono);
+}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.on{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+.dot.warn{background:var(--orange);box-shadow:0 0 8px var(--orange);}
+.dot.off{background:var(--red);box-shadow:0 0 8px var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.bell{position:relative;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:10px;width:38px;height:38px;color:var(--text-dim);font-size:15px;}
+.bell-count{position:absolute;top:-4px;right:-4px;background:var(--red);color:#1a0508;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:8px;border:2px solid var(--bg);}
+.clock{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);text-align:right;line-height:1.3;}
+.content{padding:24px 26px 60px;}
+.page{display:none;}
+.page.active{display:block;animation:fadein .35s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 14px;flex-wrap:wrap;gap:8px;}
+.section-head:first-child{margin-top:0;}
+.section-head h2{font-family:var(--font-display);font-size:17px;font-weight:600;}
+.section-sub{font-size:12px;color:var(--text-faint);}
+
+/* ---------- Cards / Grid ---------- */
+.grid{display:grid;gap:14px;}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+.card{
+  background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);
+  padding:18px;transition:border-color .2s ease, transform .2s ease;position:relative;overflow:hidden;
+}
+.card:hover{border-color:var(--border);}
+.stat-card{display:flex;flex-direction:column;gap:10px;}
+.stat-top{display:flex;align-items:center;justify-content:space-between;}
+.stat-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.stat-trend{font-size:10.5px;font-family:var(--font-mono);padding:2px 7px;border-radius:6px;}
+.trend-up{color:var(--green);background:var(--green-dim);}
+.trend-down{color:var(--red);background:var(--red-dim);}
+.trend-flat{color:var(--text-faint);background:var(--grey-dim);}
+.stat-value{font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:-.3px;}
+.stat-label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.stat-status{font-size:11px;color:var(--text-faint);}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;font-family:var(--font-mono);}
+.badge.green{color:var(--green);background:var(--green-dim);}
+.badge.orange{color:var(--orange);background:var(--orange-dim);}
+.badge.red{color:var(--red);background:var(--red-dim);}
+.badge.grey{color:var(--grey);background:var(--grey-dim);}
+.badge.blue{color:var(--blue);background:var(--blue-dim);}
+
+/* ---------- Entry Verification signature ---------- */
+.flow-card{background:linear-gradient(180deg,var(--bg-card),var(--bg-elev));border:1px solid var(--border-soft);border-radius:var(--radius);padding:26px;}
+.flow-track{display:flex;align-items:center;justify-content:space-between;margin:26px 0 8px;position:relative;}
+.flow-track::before{
+  content:'';position:absolute;top:26px;left:30px;right:30px;height:2px;
+  background:repeating-linear-gradient(90deg,var(--border) 0 8px,transparent 8px 14px);z-index:0;
+}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;z-index:1;flex:1;}
+.flow-icon{
+  width:52px;height:52px;border-radius:50%;background:var(--bg-elev);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .3s ease;
+}
+.flow-icon.active{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 22px var(--accent-glow);animation:flowpulse 1.4s ease infinite;}
+@keyframes flowpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.flow-label{font-size:10.5px;color:var(--text-dim);text-align:center;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+.entry-result{
+  margin-top:20px;padding:16px 18px;border-radius:var(--radius-sm);border:1px solid var(--border-soft);
+  background:var(--bg-elev);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.entry-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:16px;}
+.meta-item .k{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.meta-item .v{font-family:var(--font-mono);font-size:13.5px;font-weight:600;}
+
+/* ---------- Gauges ---------- */
+.gauge-wrap{display:flex;align-items:center;gap:18px;}
+.gauge{position:relative;width:96px;height:96px;flex-shrink:0;}
+.gauge svg{transform:rotate(-90deg);}
+.gauge-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.gauge-val .n{font-family:var(--font-mono);font-size:16px;font-weight:700;}
+.gauge-val .u{font-size:9px;color:var(--text-faint);}
+
+/* ---------- Tables ---------- */
+.table-wrap{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);overflow:hidden;}
+.table-toolbar{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;}
+.input,.select{
+  background:var(--bg-elev);border:1px solid var(--border);color:var(--text);border-radius:8px;
+  padding:8px 12px;font-size:12.5px;font-family:inherit;outline:none;
+}
+.input{flex:1;min-width:160px;}
+.input:focus,.select:focus{border-color:var(--accent);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{
+  text-align:left;padding:10px 16px;color:var(--text-faint);font-weight:600;text-transform:uppercase;
+  font-size:10.5px;letter-spacing:.4px;border-bottom:1px solid var(--border-soft);background:var(--bg-elev);
+}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--border-soft);color:var(--text-dim);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--bg-card-hover);}
+.mono{font-family:var(--font-mono);}
+
+/* ---------- Toggle / device control ---------- */
+.device-card{display:flex;flex-direction:column;gap:16px;}
+.device-head{display:flex;align-items:center;gap:12px;}
+.device-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;background:var(--bg-elev);border:1px solid var(--border-soft);}
+.switch{position:relative;width:50px;height:28px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:var(--border);border-radius:20px;transition:.25s;cursor:pointer;}
+.slider::before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#0a0e14;border-radius:50%;transition:.25s;}
+input:checked + .slider{background:var(--green);}
+input:checked + .slider::before{transform:translateX(22px);background:#04150e;}
+.device-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-faint);padding:7px 0;border-top:1px solid var(--border-soft);}
+
+/* ---------- Alerts / Activity ---------- */
+.alert-item{
+  display:flex;gap:12px;padding:13px 16px;border-radius:var(--radius-sm);border:1px solid var(--border-soft);
+  background:var(--bg-card);margin-bottom:8px;align-items:flex-start;
+}
+.alert-item.red{border-left:3px solid var(--red);}
+.alert-item.orange{border-left:3px solid var(--orange);}
+.alert-item.blue{border-left:3px solid var(--blue);}
+.alert-ico{font-size:16px;}
+.alert-body .t{font-size:13px;font-weight:600;margin-bottom:2px;}
+.alert-body .d{font-size:11.5px;color:var(--text-faint);}
+.alert-time{margin-left:auto;font-size:10.5px;color:var(--text-faint);font-family:var(--font-mono);white-space:nowrap;}
+.log-item{display:flex;gap:12px;font-family:var(--font-mono);font-size:12px;padding:7px 0;border-bottom:1px dashed var(--border-soft);color:var(--text-dim);}
+.log-time{color:var(--text-faint);flex-shrink:0;}
+
+/* ---------- Water tank ---------- */
+.tank{width:90px;height:130px;border:2px solid var(--border);border-radius:10px;position:relative;overflow:hidden;background:var(--bg-elev);margin:0 auto;}
+.tank-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--blue),var(--accent-dim));transition:height 1s ease;}
+.tank-wave{position:absolute;top:-6px;left:0;width:200%;height:12px;background:rgba(255,255,255,0.15);border-radius:50%;animation:wave 3s linear infinite;}
+@keyframes wave{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ---------- Chart card ---------- */
+.chart-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px;}
+.chart-card canvas{max-height:220px;}
+.filter-row{display:flex;gap:8px;margin-bottom:6px;}
+.pill{background:var(--bg-elev);border:1px solid var(--border);color:var(--text-dim);font-size:11px;padding:6px 12px;border-radius:20px;}
+.pill.active{color:var(--accent);border-color:rgba(34,211,238,.35);background:var(--accent-dim);}
+
+.sensor-info-card{display:flex;gap:14px;align-items:flex-start;}
+.sensor-info-card .ico{font-size:22px;width:44px;height:44px;border-radius:11px;background:var(--bg-elev);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sensor-info-card h4{font-size:13.5px;margin-bottom:4px;font-family:var(--font-display);}
+.sensor-info-card p{font-size:12px;color:var(--text-dim);line-height:1.5;}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:45;}
+@media (max-width:980px){
+  .grid.cols-4{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-2{grid-template-columns:1fr;}
+  .entry-meta{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;align-items:center;justify-content:center;}
+  .overlay.show{display:block;}
+  .grid.cols-4,.grid.cols-3{grid-template-columns:repeat(2,1fr);}
+  .entry-meta{grid-template-columns:repeat(2,1fr);}
+  .topbar{padding:12px 14px;}
+  .content{padding:16px 14px 50px;}
+  .clock{display:none;}
+}
+@media (max-width:480px){
+  .grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}
+  .entry-meta{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">SH</div>
+      <div class="brand-text">
+        <div class="t1">SMART STAY HUB</div>
+        <div class="t2">PG Hostel Management</div>
+      </div>
+    </div>
+    <nav class="nav" id="navList">
+      <button class="nav-item active" data-page="dashboard"><span class="ico">▦</span>Dashboard</button>
+      <button class="nav-item" data-page="rfid"><span class="ico">◈</span>RFID Attendance</button>
+      <button class="nav-item" data-page="entry"><span class="ico">⇄</span>Entry Verification</button>
+      <button class="nav-item" data-page="environment"><span class="ico">☀</span>Environment</button>
+      <button class="nav-item" data-page="water"><span class="ico">≈</span>Water Level</button>
+      <button class="nav-item" data-page="security"><span class="ico">⛨</span>Security</button>
+      <button class="nav-item" data-page="control"><span class="ico">⏻</span>Device Control</button>
+      <button class="nav-item" data-page="analytics"><span class="ico">◱</span>Analytics</button>
+      <button class="nav-item" data-page="alerts"><span class="ico">⚠</span>Alerts<span class="nav-badge" id="navAlertCount">0</span></button>
+      <button class="nav-item" data-page="activity"><span class="ico">☰</span>Activity Log</button>
+      <button class="nav-item" data-page="system"><span class="ico">◉</span>System Status</button>
+      <button class="nav-item" data-page="about"><span class="ico">ℹ</span>About Project</button>
+    </nav>
+    <div class="sidebar-foot">ESP32 · RC522 · DHT11 · MQ-2<br>HC-SR04 · PIR · MQTT HiveMQ</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamBtn">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard Overview<span>Live system snapshot</span></div>
+      <div class="status-chip"><span class="dot on"></span>ESP32 ONLINE</div>
+      <div class="status-chip"><span class="dot on"></span>WI-FI</div>
+      <div class="status-chip"><span class="dot on"></span>MQTT</div>
+      <div class="status-chip" id="lastUpdateChip">↻ <span id="lastUpdateText">2s ago</span></div>
+      <button class="bell">🔔<span class="bell-count" id="bellCount">3</span></button>
+      <div class="clock"><div id="clockDate">—</div><div id="clockTime">—</div></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <div class="page active" id="page-dashboard">
+        <div class="section-head"><h2>Overview</h2><span class="section-sub">Updated in real time via MQTT</span></div>
+        <div class="grid cols-4" id="overviewCards"></div>
+
+        <div class="section-head"><h2>RFID + PIR Entry Verification</h2><span class="section-sub">The core safety feature of Smart Stay Hub</span></div>
+        <div class="flow-card">
+          <div class="flow-track" id="flowTrack">
+            <div class="flow-node"><div class="flow-icon" id="fi-1">◈</div><div class="flow-label">RFID Scan</div></div>
+            <div class="flow-node"><div class="flow-icon" id="fi-2">🚪</div><div class="flow-label">Door</div></div>
+            <div class="flow-node"><div class="flow-icon" id="fi-3">👁</div><div class="flow-label">PIR Detect</div></div>
+            <div class="flow-node"><div class="flow-icon" id="fi-4">👥</div><div class="flow-label">Person Count</div></div>
+            <div class="flow-node"><div class="flow-icon" id="fi-5">✓</div><div class="flow-label">Verification</div></div>
+          </div>
+          <div class="entry-meta">
+            <div class="meta-item"><div class="k">RFID User</div><div class="v" id="ev-user">—</div></div>
+            <div class="meta-item"><div class="k">RFID ID</div><div class="v" id="ev-id">—</div></div>
+            <div class="meta-item"><div class="k">Scan Time</div><div class="v" id="ev-time">—</div></div>
+            <div class="meta-item"><div class="k">People Detected</div><div class="v" id="ev-people">—</div></div>
+          </div>
+          <div class="entry-result">
+            <div><div class="k" style="font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Entry Status</div>
+              <span class="badge green" id="ev-badge">🟢 SINGLE ENTRY VERIFIED</span></div>
+            <div style="font-size:11.5px;color:var(--text-faint);">Next simulated scan in <span class="mono" id="ev-countdown">—</span>s</div>
+          </div>
+        </div>
+
+        <div class="section-head"><h2>Recent Alerts</h2></div>
+        <div id="dashAlerts"></div>
+      </div>
+
+      <!-- ===================== RFID ATTENDANCE ===================== -->
+      <div class="page" id="page-rfid">
+        <div class="section-head"><h2>RFID Attendance</h2><span class="section-sub">RC522 reader · resident identification</span></div>
+        <div class="grid cols-4">
+          <div class="card stat-card"><div class="stat-label">Total Residents</div><div class="stat-value">48</div></div>
+          <div class="card stat-card"><div class="stat-label">Present</div><div class="stat-value" style="color:var(--green)" id="attPresent">—</div></div>
+          <div class="card stat-card"><div class="stat-label">Absent</div><div class="stat-value" style="color:var(--text-faint)" id="attAbsent">—</div></div>
+          <div class="card stat-card"><div class="stat-label">Today's Entries / Exits</div><div class="stat-value" id="attEE">—</div></div>
+        </div>
+        <div class="section-head"><h2>Attendance Log</h2></div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="input" id="rfidSearch" placeholder="Search resident or RFID ID…">
+            <select class="select" id="rfidFilterDir"><option value="">Entry/Exit</option><option>Entry</option><option>Exit</option></select>
+            <select class="select" id="rfidFilterStatus"><option value="">Status</option><option>Authorized</option><option>Unauthorized</option></select>
+          </div>
+          <div style="max-height:420px;overflow:auto;">
+          <table>
+            <thead><tr><th>Name</th><th>RFID ID</th><th>Date</th><th>Time</th><th>Entry/Exit</th><th>Status</th></tr></thead>
+            <tbody id="rfidTableBody"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ENTRY VERIFICATION ===================== -->
+      <div class="page" id="page-entry">
+        <div class="section-head"><h2>RFID Entry Verification</h2><span class="section-sub">HC-SR501 PIR confirms single vs. tailgated entry</span></div>
+        <div class="grid cols-4">
+          <div class="card stat-card"><div class="stat-label">Total RFID Entries</div><div class="stat-value" id="evTotal">—</div></div>
+          <div class="card stat-card"><div class="stat-label">Single Entries</div><div class="stat-value" style="color:var(--green)" id="evSingle">—</div></div>
+          <div class="card stat-card"><div class="stat-label">Double Entries</div><div class="stat-value" style="color:var(--red)" id="evDouble">—</div></div>
+          <div class="card stat-card"><div class="stat-label">Tailgating Alerts</div><div class="stat-value" style="color:var(--red)" id="evTail">—</div></div>
+        </div>
+        <div class="section-head"><h2>Entry Verification History</h2></div>
+        <div class="table-wrap">
+          <div style="max-height:420px;overflow:auto;">
+          <table>
+            <thead><tr><th>Time</th><th>RFID User</th><th>RFID ID</th><th>Persons Detected</th><th>Result</th></tr></thead>
+            <tbody id="entryTableBody"></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ENVIRONMENT ===================== -->
+      <div class="page" id="page-environment">
+        <div class="section-head"><h2>Temperature &amp; Humidity</h2><span class="section-sub">DHT11 sensor · updated every 3s</span></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="gauge-wrap">
+              <div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="42" stroke="#1a212f" stroke-width="8" fill="none"/>
+                <circle cx="48" cy="48" r="42" stroke="var(--orange)" stroke-width="8" fill="none" stroke-linecap="round" id="tempRing" stroke-dasharray="264" stroke-dashoffset="130"/>
+              </svg><div class="gauge-val"><div class="n" id="tempVal">28.5</div><div class="u">°C</div></div></div>
+              <div><div class="stat-label">Temperature</div><div class="stat-status" id="tempStatus">Status: NORMAL</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="gauge-wrap">
+              <div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="42" stroke="#1a212f" stroke-width="8" fill="none"/>
+                <circle cx="48" cy="48" r="42" stroke="var(--blue)" stroke-width="8" fill="none" stroke-linecap="round" id="humRing" stroke-dasharray="264" stroke-dashoffset="90"/>
+              </svg><div class="gauge-val"><div class="n" id="humVal">65</div><div class="u">%</div></div></div>
+              <div><div class="stat-label">Humidity</div><div class="stat-status" id="humStatus">Status: NORMAL</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-head"><h2>24-Hour Trend</h2></div>
+        <div class="chart-card"><canvas id="envChart"></canvas></div>
+
+        <div class="section-head"><h2>Gas / Smoke Safety</h2><span class="section-sub">MQ-2 sensor</span></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="gauge-wrap">
+              <div class="gauge"><svg width="96" height="96" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="42" stroke="#1a212f" stroke-width="8" fill="none"/>
+                <circle cx="48" cy="48" r="42" stroke="var(--green)" stroke-width="8" fill="none" stroke-linecap="round" id="gasRing" stroke-dasharray="264" stroke-dashoffset="200"/>
+              </svg><div class="gauge-val"><div class="n" id="gasVal">180</div><div class="u">ppm</div></div></div>
+              <div><div class="stat-label">Gas Level</div><div class="stat-status" id="gasStatus"><span class="badge green">SAFE</span></div></div>
+            </div>
+          </div>
+          <div class="card" id="gasAlertCard" style="display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:12.5px;">No active gas alerts</div>
+        </div>
+      </div>
+
+      <!-- ===================== WATER LEVEL ===================== -->
+      <div class="page" id="page-water">
+        <div class="section-head"><h2>Water Tank Monitor</h2><span class="section-sub">HC-SR04 ultrasonic sensor</span></div>
+        <div class="grid cols-2">
+          <div class="card" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div class="tank"><div class="tank-fill" id="tankFill" style="height:78%;"><div class="tank-wave"></div></div></div>
+            <div style="text-align:center;"><div class="stat-value" id="waterPct">78%</div><div class="stat-label">Water Level</div></div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;gap:14px;justify-content:center;">
+            <div class="device-row" style="border-top:none;"><span>Distance to Surface</span><span class="mono" id="waterDist">12 cm</span></div>
+            <div class="device-row"><span>Tank Status</span><span class="badge green" id="waterStatusBadge">NORMAL</span></div>
+            <div class="device-row"><span>Last Reading</span><span class="mono" id="waterLast">just now</span></div>
+          </div>
+        </div>
+
+        <div class="section-head"><h2>Door Status</h2><span class="section-sub">Magnetic door sensor</span></div>
+        <div class="grid cols-2">
+          <div class="card" style="display:flex;align-items:center;gap:16px;">
+            <div style="font-size:30px;" id="doorIcon">🟢</div>
+            <div><div class="stat-value" id="doorStatusText" style="font-size:19px;">DOOR CLOSED</div><div class="stat-status">Magnetic reed sensor · door frame</div></div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;gap:10px;justify-content:center;">
+            <div class="device-row" style="border-top:none;"><span>Last Opened</span><span class="mono" id="doorLastOpen">09:12:04</span></div>
+            <div class="device-row"><span>Last Closed</span><span class="mono" id="doorLastClose">09:12:41</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SECURITY ===================== -->
+      <div class="page" id="page-security">
+        <div class="section-head"><h2>Security Overview</h2><span class="section-sub">Priority: Double Entry → Gas Danger → Door Left Open → Unauthorized RFID</span></div>
+        <div class="grid cols-4" id="securityCards"></div>
+        <div class="section-head"><h2>Recent Security Events</h2></div>
+        <div id="securityEvents"></div>
+      </div>
+
+      <!-- ===================== DEVICE CONTROL ===================== -->
+      <div class="page" id="page-control">
+        <div class="section-head"><h2>Device Control</h2><span class="section-sub">Commands are sent to ESP32 via MQTT</span></div>
+        <div class="grid cols-3" id="deviceCards"></div>
+      </div>
+
+      <!-- ===================== ANALYTICS ===================== -->
+      <div class="page" id="page-analytics">
+        <div class="section-head"><h2>Analytics</h2><span class="section-sub">Historical sensor and usage trends</span></div>
+        <div class="filter-row">
+          <button class="pill" data-range="1h">Last 1 Hour</button>
+          <button class="pill active" data-range="24h">Last 24 Hours</button>
+          <button class="pill" data-range="7d">Last 7 Days</button>
+          <button class="pill" data-range="30d">Last 30 Days</button>
+        </div>
+        <div class="grid cols-2">
+          <div class="chart-card"><h4 style="font-size:12.5px;margin-bottom:10px;color:var(--text-dim);">Temperature &amp; Humidity</h4><canvas id="chartTH"></canvas></div>
+          <div class="chart-card"><h4 style="font-size:12.5px;margin-bottom:10px;color:var(--text-dim);">Gas &amp; Water Level</h4><canvas id="chartGW"></canvas></div>
+          <div class="chart-card"><h4 style="font-size:12.5px;margin-bottom:10px;color:var(--text-dim);">RFID Entries (Single / Double / Multiple)</h4><canvas id="chartEntries"></canvas></div>
+          <div class="chart-card"><h4 style="font-size:12.5px;margin-bottom:10px;color:var(--text-dim);">Device Usage Hours (AC / Light / Fan)</h4><canvas id="chartDevices"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ===================== ALERTS ===================== -->
+      <div class="page" id="page-alerts">
+        <div class="section-head"><h2>Alerts &amp; Notifications</h2><span class="section-sub">All monitored critical events</span></div>
+        <div id="alertsFull"></div>
+      </div>
+
+      <!-- ===================== ACTIVITY LOG ===================== -->
+      <div class="page" id="page-activity">
+        <div class="section-head"><h2>Activity Log</h2><span class="section-sub">Real-time system event stream</span></div>
+        <div class="card" style="max-height:520px;overflow:auto;" id="activityLog"></div>
+      </div>
+
+      <!-- ===================== SYSTEM STATUS ===================== -->
+      <div class="page" id="page-system">
+        <div class="section-head"><h2>System Status</h2></div>
+        <div class="grid cols-4">
+          <div class="card stat-card"><div class="stat-label">ESP32</div><span class="badge green">🟢 ONLINE</span></div>
+          <div class="card stat-card"><div class="stat-label">Wi-Fi</div><span class="badge green">🟢 CONNECTED</span></div>
+          <div class="card stat-card"><div class="stat-label">MQTT HiveMQ</div><span class="badge green">🟢 CONNECTED</span></div>
+          <div class="card stat-card"><div class="stat-label">System Uptime</div><div class="stat-value" id="uptimeVal" style="font-size:20px;">—</div></div>
+        </div>
+        <div class="section-head"><h2>Connection Logs</h2></div>
+        <div class="card" style="max-height:320px;overflow:auto;" id="connLog"></div>
+      </div>
+
+      <!-- ===================== ABOUT ===================== -->
+      <div class="page" id="page-about">
+        <div class="section-head"><h2>About the Project</h2></div>
+        <div class="card" style="margin-bottom:20px;">
+          <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:8px;">SMART STAY HUB</h3>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">An IoT-based Smart PG Hostel Management System combining RFID attendance, PIR-based tailgating detection, environmental and safety monitoring, and remote appliance control — built on ESP32, MQTT (HiveMQ), and Node-RED.</p>
+        </div>
+        <div class="section-head"><h2>Sensors &amp; Modules</h2></div>
+        <div class="grid cols-2" id="sensorInfo"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STATE & UTILITIES
+============================================================ */
+const RESIDENTS = ["Arjun Mehta","Priya Nair","Rahul Verma","Sneha Iyer","Karthik Raj","Divya Sharma","Vivek Pillai","Ananya Rao","Suresh Kumar","Meera Das","Rohit Bose","Kavya Menon"];
+let alertCounter=0, entryCounter=0, activityCounter=0;
+const alerts=[]; const entryHistory=[]; const rfidLog=[]; const activityLog=[];
+let stats={present:31,absent:17,entries:12,exits:5,evTotal:0,evSingle:0,evDouble:0,evMulti:0,evTail:0};
+
+function nowTime(){return new Date().toLocaleTimeString('en-IN',{hour12:true});}
+function nowDate(){return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function pad(n){return n.toString().padStart(2,'0');}
+function rid(){return 'RF'+Math.floor(10000000+Math.random()*89999999);}
+
+function badgeFor(level,text){
+  const map={green:'🟢',orange:'🟠',red:'🔴',grey:'⚪',blue:'🔵'};
+  return `<span class="badge ${level}">${map[level]||''} ${text}</span>`;
+}
+
+/* ============================================================
+   CLOCK
+============================================================ */
+function tickClock(){
+  const d=new Date();
+  document.getElementById('clockDate').textContent=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('clockTime').textContent=d.toLocaleTimeString('en-IN',{hour12:true});
+}
+setInterval(tickClock,1000); tickClock();
+
+let secsSinceUpdate=0;
+setInterval(()=>{secsSinceUpdate++;document.getElementById('lastUpdateText').textContent=secsSinceUpdate+'s ago';},1000);
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const pageTitles={
+  dashboard:['Dashboard Overview','Live system snapshot'],
+  rfid:['RFID Attendance','Resident identification via RC522'],
+  entry:['RFID Entry Verification','Single vs. double entry detection'],
+  environment:['Environment & Gas Safety','DHT11 · MQ-2 monitoring'],
+  water:['Water Level & Door Status','HC-SR04 · Magnetic door sensor'],
+  security:['Security Dashboard','Consolidated safety overview'],
+  control:['Device Control','AC · Light · Fan via relay'],
+  analytics:['Analytics','Historical trends'],
+  alerts:['Alerts & Notifications','All system alerts'],
+  activity:['Activity Log','Real-time event stream'],
+  system:['System Status','Connectivity & uptime'],
+  about:['About Project','Sensors & architecture']
+};
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const p=btn.dataset.page;
+    document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+    document.getElementById('page-'+p).classList.add('active');
+    document.getElementById('topbarTitle').innerHTML=pageTitles[p][0]+'<span>'+pageTitles[p][1]+'</span>';
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  });
+});
+document.getElementById('hamBtn').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+});
+document.getElementById('overlay').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+});
+
+/* ============================================================
+   OVERVIEW CARDS
+============================================================ */
+function renderOverview(){
+  const cards=[
+    {label:'Total Residents',value:48,ico:'👥',color:'var(--blue)',trend:'flat',trendTxt:'stable'},
+    {label:'Present',value:stats.present,ico:'✅',color:'var(--green)',trend:'up',trendTxt:'+2 today'},
+    {label:'Absent',value:stats.absent,ico:'🚪',color:'var(--grey)',trend:'flat',trendTxt:'—'},
+    {label:'Active Alerts',value:alerts.filter(a=>!a.resolved).length,ico:'⚠️',color:'var(--red)',trend:'up',trendTxt:'live'},
+    {label:'Single Entries',value:stats.evSingle,ico:'🟢',color:'var(--green)',trend:'up',trendTxt:'today'},
+    {label:'Double Entry Alerts',value:stats.evDouble,ico:'🔴',color:'var(--red)',trend:stats.evDouble>0?'down':'flat',trendTxt:'today'},
+    {label:'Water Level',value:document.getElementById('waterPct')?document.getElementById('waterPct').textContent:'78%',ico:'💧',color:'var(--blue)',trend:'flat',trendTxt:'normal'},
+    {label:'Gas Status',value:'SAFE',ico:'🛡️',color:'var(--green)',trend:'flat',trendTxt:'MQ-2'},
+  ];
+  document.getElementById('overviewCards').innerHTML=cards.map(c=>`
+    <div class="card stat-card">
+      <div class="stat-top">
+        <div class="stat-ico" style="background:${c.color}22;color:${c.color};">${c.ico}</div>
+        <div class="stat-trend trend-${c.trend}">${c.trendTxt}</div>
+      </div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-label">${c.label}</div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   RFID ATTENDANCE SIMULATION
+============================================================ */
+function addAttendanceEntry(){
+  const name=RESIDENTS[Math.floor(Math.random()*RESIDENTS.length)];
+  const dir=Math.random()>0.5?'Entry':'Exit';
+  const status=Math.random()>0.08?'Authorized':'Unauthorized';
+  const row={name,id:rid(),date:nowDate(),time:nowTime(),dir,status};
+  rfidLog.unshift(row);
+  if(rfidLog.length>60) rfidLog.pop();
+  if(dir==='Entry') stats.entries++; else stats.exits++;
+  renderRfidTable();
+  addActivity(`RFID card detected — ${name} (${row.id})`);
+  if(status==='Unauthorized'){
+    pushAlert('red','⛔','UNAUTHORIZED RFID','Unrecognized card presented at door reader.');
+  }
+}
+function renderRfidTable(filterText='',dir='',status=''){
+  const tbody=document.getElementById('rfidTableBody');
+  let rows=rfidLog;
+  if(filterText) rows=rows.filter(r=>r.name.toLowerCase().includes(filterText.toLowerCase())||r.id.toLowerCase().includes(filterText.toLowerCase()));
+  if(dir) rows=rows.filter(r=>r.dir===dir);
+  if(status) rows=rows.filter(r=>r.status===status);
+  tbody.innerHTML=rows.slice(0,40).map(r=>`
+    <tr><td>${r.name}</td><td class="mono">${r.id}</td><td>${r.date}</td><td class="mono">${r.time}</td>
+    <td>${badgeFor(r.dir==='Entry'?'green':'grey',r.dir)}</td>
+    <td>${badgeFor(r.status==='Authorized'?'green':'red',r.status)}</td></tr>`).join('');
+  document.getElementById('attPresent').textContent=stats.present;
+  document.getElementById('attAbsent').textContent=stats.absent;
+  document.getElementById('attEE').textContent=stats.entries+' / '+stats.exits;
+}
+document.getElementById('rfidSearch').addEventListener('input',e=>renderRfidTable(e.target.value,document.getElementById('rfidFilterDir').value,document.getElementById('rfidFilterStatus').value));
+document.getElementById('rfidFilterDir').addEventListener('change',e=>renderRfidTable(document.getElementById('rfidSearch').value,e.target.value,document.getElementById('rfidFilterStatus').value));
+document.getElementById('rfidFilterStatus').addEventListener('change',e=>renderRfidTable(document.getElementById('rfidSearch').value,document.getElementById('rfidFilterDir').value,e.target.value));
+
+/* ============================================================
+   ENTRY VERIFICATION SIMULATION (signature feature)
+============================================================ */
+let evCountdown=8;
+function runEntryVerification(){
+  const steps=['fi-1','fi-2','fi-3','fi-4','fi-5'];
+  steps.forEach(s=>document.getElementById(s).classList.remove('active'));
+  const name=RESIDENTS[Math.floor(Math.random()*RESIDENTS.length)];
+  const id=rid();
+  const time=nowTime();
+  document.getElementById('ev-user').textContent=name;
+  document.getElementById('ev-id').textContent=id;
+  document.getElementById('ev-time').textContent=time;
+  document.getElementById('ev-people').textContent='—';
+  document.getElementById('ev-badge').outerHTML='<span class="badge blue" id="ev-badge">🔵 SCANNING…</span>';
+
+  let i=0;
+  const stepInterval=setInterval(()=>{
+    if(i<steps.length){
+      document.getElementById(steps[i]).classList.add('active');
+      i++;
+    } else {
+      clearInterval(stepInterval);
+      finalizeEntry(name,id,time);
+    }
+  },420);
+}
+function finalizeEntry(name,id,time){
+  const roll=Math.random();
+  let people, result, level, icon;
+  if(roll<0.72){people=1;result='SINGLE ENTRY VERIFIED';level='green';icon='🟢';stats.evSingle++;}
+  else if(roll<0.9){people=2;result='DOUBLE ENTRY DETECTED';level='red';icon='🔴';stats.evDouble++;
+    pushAlert('red','🚨','DOUBLE ENTRY / TAILGATING DETECTED',`Two persons detected after single RFID authorization by ${name}.`);
+    stats.evTail++;
+  } else if(roll<0.97){people=3;result='MULTIPLE ENTRY DETECTED';level='red';icon='🔴';stats.evMulti++;stats.evTail++;
+    pushAlert('red','🚨','MULTIPLE ENTRY DETECTED',`${people} persons detected at doorway using one RFID authorization.`);
+  } else {people=0;result='ENTRY VERIFICATION FAILED';level='orange';icon='🟠';
+    pushAlert('orange','🟠','ENTRY VERIFICATION FAILED',`PIR could not confirm entry count for ${name}.`);
+  }
+  stats.evTotal++;
+  document.getElementById('ev-people').textContent=people+(people===1?' Person':' Persons');
+  document.getElementById('ev-badge').outerHTML=`<span class="badge ${level}" id="ev-badge">${icon} ${result}</span>`;
+  entryHistory.unshift({time,name,id,people,result});
+  if(entryHistory.length>50) entryHistory.pop();
+  renderEntryTable();
+  addActivity(`Entry verification — ${name}: ${result}`);
+  evCountdown=Math.floor(9+Math.random()*8);
+}
+function renderEntryTable(){
+  document.getElementById('entryTableBody').innerHTML=entryHistory.slice(0,40).map(r=>{
+    const level=r.result.includes('SINGLE')?'green':r.result.includes('FAILED')?'orange':'red';
+    return `<tr><td class="mono">${r.time}</td><td>${r.name}</td><td class="mono">${r.id}</td><td>${r.people}</td><td>${badgeFor(level,r.result)}</td></tr>`;
+  }).join('');
+  document.getElementById('evTotal').textContent=stats.evTotal;
+  document.getElementById('evSingle').textContent=stats.evSingle;
+  document.getElementById('evDouble').textContent=stats.evDouble;
+  document.getElementById('evTail').textContent=stats.evTail;
+}
+setInterval(()=>{
+  evCountdown--;
+  const el=document.getElementById('ev-countdown');
+  if(el) el.textContent=Math.max(evCountdown,0);
+  if(evCountdown<=0){ runEntryVerification(); }
+},1000);
+
+/* ============================================================
+   ENVIRONMENT (DHT11) + GAS (MQ-2)
+============================================================ */
+let temp=28.5, hum=65, gas=180;
+function updateEnvironment(){
+  temp=+(temp+(Math.random()-0.5)*0.8).toFixed(1);
+  temp=Math.max(22,Math.min(36,temp));
+  hum=Math.round(hum+(Math.random()-0.5)*3);
+  hum=Math.max(35,Math.min(85,hum));
+  gas=Math.round(gas+(Math.random()-0.5)*30);
+  gas=Math.max(90,Math.min(650,gas));
+
+  document.getElementById('tempVal').textContent=temp;
+  document.getElementById('humVal').textContent=hum;
+  document.getElementById('gasVal').textContent=gas;
+
+  const tempOff=264-(Math.min(temp,45)/45*264);
+  document.getElementById('tempRing').style.strokeDashoffset=tempOff;
+  const humOff=264-(hum/100*264);
+  document.getElementById('humRing').style.strokeDashoffset=humOff;
+  const gasOff=264-(Math.min(gas,700)/700*264);
+  document.getElementById('gasRing').style.strokeDashoffset=gasOff;
+
+  const tempStatus=temp>32?['HIGH','orange']:temp<24?['LOW','blue']:['NORMAL','green'];
+  document.getElementById('tempStatus').innerHTML=`Status: <span style="color:var(--${tempStatus[1]==='blue'?'blue':tempStatus[1]})">${tempStatus[0]}</span>`;
+  const humStatus=hum>78?['HIGH','orange']:hum<40?['LOW','blue']:['NORMAL','green'];
+  document.getElementById('humStatus').innerHTML=`Status: <span style="color:var(--${humStatus[1]})">${humStatus[0]}</span>`;
+
+  const gasRing=document.getElementById('gasRing');
+  const gasStatusEl=document.getElementById('gasStatus');
+  const gasAlertCard=document.getElementById('gasAlertCard');
+  if(gas>450){
+    gasRing.style.stroke='var(--red)';
+    gasStatusEl.innerHTML=badgeFor('red','DANGER');
+    gasAlertCard.innerHTML='<div style="color:var(--red);font-weight:600;">🔴 GAS ALERT<br><span style="font-weight:400;color:var(--text-dim);font-size:12px;">Dangerous gas level detected. Buzzer triggered.</span></div>';
+    if(Math.random()<0.3) pushAlert('red','🔴','GAS ALERT','Dangerous gas level detected by MQ-2 sensor.');
+  } else if(gas>320){
+    gasRing.style.stroke='var(--orange)';
+    gasStatusEl.innerHTML=badgeFor('orange','WARNING');
+    gasAlertCard.innerHTML='<div style="color:var(--orange);font-size:12.5px;">🟠 Elevated gas reading — monitoring closely.</div>';
+  } else {
+    gasRing.style.stroke='var(--green)';
+    gasStatusEl.innerHTML=badgeFor('green','SAFE');
+    gasAlertCard.innerHTML='<div style="color:var(--text-faint);font-size:12.5px;">No active gas alerts</div>';
+  }
+
+  envSeries.temp.push(temp);envSeries.hum.push(hum);envSeries.gas.push(gas);
+  envSeries.labels.push(nowTime().slice(0,5));
+  [envSeries.temp,envSeries.hum,envSeries.gas,envSeries.labels].forEach(a=>{if(a.length>20)a.shift();});
+  if(envChart){envChart.data.labels=envSeries.labels;envChart.data.datasets[0].data=envSeries.temp;envChart.data.datasets[1].data=envSeries.hum;envChart.update('none');}
+}
+const envSeries={temp:[],hum:[],gas:[],labels:[]};
+
+/* ============================================================
+   WATER TANK + DOOR
+============================================================ */
+let waterLevel=78, doorOpen=false, doorOpenSince=null;
+function updateWater(){
+  waterLevel=Math.max(8,Math.min(100,waterLevel+(Math.random()-0.52)*2));
+  const pct=Math.round(waterLevel);
+  document.getElementById('tankFill').style.height=pct+'%';
+  document.getElementById('waterPct').textContent=pct+'%';
+  document.getElementById('waterDist').textContent=(Math.round((100-pct)/100*40+3))+' cm';
+  document.getElementById('waterLast').textContent='just now';
+  let status,level;
+  if(pct>85){status='FULL';level='blue';}
+  else if(pct>35){status='NORMAL';level='green';}
+  else if(pct>15){status='LOW';level='orange';}
+  else{status='CRITICAL';level='red';}
+  document.getElementById('waterStatusBadge').outerHTML=`<span class="badge ${level}" id="waterStatusBadge">${status}</span>`;
+  if(status==='CRITICAL' && Math.random()<0.4){
+    pushAlert('red','🔴','CRITICAL WATER LEVEL','Water tank level critically low. Buzzer triggered.');
+  } else if(status==='LOW' && Math.random()<0.15){
+    pushAlert('orange','🟠','WATER LEVEL WARNING','Water tank level is low.');
+  }
+}
+function toggleDoorRandom(){
+  if(Math.random()<0.18){
+    doorOpen=!doorOpen;
+    const t=nowTime();
+    if(doorOpen){
+      doorOpenSince=Date.now();
+      document.getElementById('doorLastOpen').textContent=t;
+      addActivity('Door opened');
+    } else {
+      document.getElementById('doorLastClose').textContent=t;
+      addActivity('Door closed');
+    }
+    document.getElementById('doorIcon').textContent=doorOpen?'🔴':'🟢';
+    document.getElementById('doorStatusText').textContent=doorOpen?'DOOR OPEN':'DOOR CLOSED';
+  }
+  if(doorOpen && doorOpenSince && Date.now()-doorOpenSince>25000){
+    pushAlert('orange','⚠️','DOOR LEFT OPEN','Door has remained open for too long.');
+    doorOpenSince=Date.now()+999999; // prevent repeat spam until closed
+  }
+}
+
+/* ============================================================
+   DEVICE CONTROL
+============================================================ */
+const devices=[
+  {id:'ac',name:'AC',ico:'❄️',on:true,last:nowTime()},
+  {id:'light',name:'Light',ico:'💡',on:true,last:nowTime()},
+  {id:'fan',name:'Fan',ico:'🌀',on:false,last:nowTime()},
+];
+function renderDevices(){
+  document.getElementById('deviceCards').innerHTML=devices.map(d=>`
+    <div class="card device-card">
+      <div class="device-head">
+        <div class="device-ico">${d.ico}</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:14px;">${d.name}</div>
+          <div style="font-size:11px;color:var(--text-faint);">Relay Module · ESP32</div>
+        </div>
+        <label class="switch"><input type="checkbox" ${d.on?'checked':''} onchange="toggleDevice('${d.id}')"><span class="slider"></span></label>
+      </div>
+      <div class="device-row" style="border-top:1px solid var(--border-soft);"><span>Current State</span>${badgeFor(d.on?'green':'grey',d.on?'ON':'OFF')}</div>
+      <div class="device-row"><span>Relay Status</span><span class="mono">${d.on?'CLOSED':'OPEN'}</span></div>
+      <div class="device-row"><span>Last Command</span><span class="mono">${d.last}</span></div>
+    </div>`).join('');
+}
+window.toggleDevice=function(id){
+  const d=devices.find(x=>x.id===id);
+  d.on=!d.on; d.last=nowTime();
+  addActivity(`${d.name} turned ${d.on?'ON':'OFF'} — Dashboard → MQTT → ESP32 → Relay`);
+  renderDevices();
+};
+
+/* ============================================================
+   ALERTS
+============================================================ */
+function pushAlert(level,ico,title,desc){
+  alertCounter++;
+  const a={id:alertCounter,level,ico,title,desc,time:nowTime(),resolved:false};
+  alerts.unshift(a);
+  if(alerts.length>80) alerts.pop();
+  renderAlerts();
+  addActivity(`Alert generated — ${title}`);
+  const count=alerts.filter(x=>!x.resolved).length;
+  document.getElementById('navAlertCount').textContent=count;
+  document.getElementById('bellCount').textContent=count;
+}
+function renderAlerts(){
+  const html=alerts.slice(0,30).map(a=>`
+    <div class="alert-item ${a.level}">
+      <div class="alert-ico">${a.ico}</div>
+      <div class="alert-body"><div class="t">${a.title}</div><div class="d">${a.desc}</div></div>
+      <div class="alert-time">${a.time}</div>
+    </div>`).join('');
+  document.getElementById('dashAlerts').innerHTML=alerts.slice(0,4).map(a=>`
+    <div class="alert-item ${a.level}"><div class="alert-ico">${a.ico}</div>
+    <div class="alert-body"><div class="t">${a.title}</div><div class="d">${a.desc}</div></div>
+    <div class="alert-time">${a.time}</div></div>`).join('') || '<div style="color:var(--text-faint);font-size:12.5px;">No alerts yet.</div>';
+  document.getElementById('alertsFull').innerHTML=html || '<div style="color:var(--text-faint);font-size:12.5px;">No alerts yet.</div>';
+  document.getElementById('securityEvents').innerHTML=alerts.slice(0,8).map(a=>`
+    <div class="alert-item ${a.level}"><div class="alert-ico">${a.ico}</div>
+    <div class="alert-body"><div class="t">${a.title}</div><div class="d">${a.desc}</div></div>
+    <div class="alert-time">${a.time}</div></div>`).join('') || '<div style="color:var(--text-faint);font-size:12.5px;">No security events yet.</div>';
+  renderOverview();
+  renderSecurityCards();
+}
+function renderSecurityCards(){
+  const cards=[
+    {label:'Double/Multiple Entry',value:stats.evDouble+stats.evMulti,color:'var(--red)',ico:'🚨'},
+    {label:'Gas Alerts',value:alerts.filter(a=>a.title.includes('GAS')).length,color:'var(--orange)',ico:'🛡️'},
+    {label:'Door Warnings',value:alerts.filter(a=>a.title.includes('DOOR')).length,color:'var(--orange)',ico:'🚪'},
+    {label:'Unauthorized RFID',value:alerts.filter(a=>a.title.includes('UNAUTHORIZED')).length,color:'var(--red)',ico:'⛔'},
+  ];
+  document.getElementById('securityCards').innerHTML=cards.map(c=>`
+    <div class="card stat-card">
+      <div class="stat-ico" style="background:${c.color}22;color:${c.color};">${c.ico}</div>
+      <div class="stat-value">${c.value}</div><div class="stat-label">${c.label}</div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   ACTIVITY LOG
+============================================================ */
+function addActivity(text){
+  activityCounter++;
+  activityLog.unshift({time:nowTime(),text});
+  if(activityLog.length>150) activityLog.pop();
+  const el=document.getElementById('activityLog');
+  if(el) el.innerHTML=activityLog.map(l=>`<div class="log-item"><span class="log-time">${l.time}</span><span>${l.text}</span></div>`).join('');
+  const cl=document.getElementById('connLog');
+  if(cl && Math.random()<0.15){
+    cl.innerHTML=`<div class="log-item"><span class="log-time">${nowTime()}</span><span>MQTT heartbeat OK · ESP32 RSSI -52dBm</span></div>`+cl.innerHTML;
+  }
+}
+
+/* ============================================================
+   SENSOR INFO / ABOUT
+============================================================ */
+const sensorInfo=[
+  ['◈','RC522 RFID','Identifies authorized residents and records attendance/entry.'],
+  ['☀','DHT11','Measures temperature and humidity.'],
+  ['🛡️','MQ-2 Gas Sensor','Detects gas/smoke level changes for safety monitoring.'],
+  ['≈','HC-SR04 Ultrasonic','Measures water tank distance and estimates water level.'],
+  ['👁','HC-SR501 PIR','Verifies whether one or multiple people enter after a single RFID authorization.'],
+  ['🚪','Magnetic Door Sensor','Detects door OPEN/CLOSED status.'],
+  ['⏻','Relay Module','Controls AC, Light and Fan through ESP32.'],
+  ['◉','ESP32','Main microcontroller that reads sensors, processes data and controls appliances.'],
+  ['📶','Wi-Fi','Provides internet/network connectivity.'],
+  ['☁','MQTT HiveMQ','Provides real-time communication between ESP32 and dashboard.'],
+  ['🔀','Node-RED','Handles IoT data flow and dashboard integration.'],
+  ['▦','16x2 LCD','Displays important local system information.'],
+  ['🔔','Buzzer','Provides audible alerts for critical events.'],
+];
+document.getElementById('sensorInfo').innerHTML=sensorInfo.map(s=>`
+  <div class="card sensor-info-card"><div class="ico">${s[0]}</div><div><h4>${s[1]}</h4><p>${s[2]}</p></div></div>`).join('');
+
+/* ============================================================
+   CHARTS
+============================================================ */
+Chart.defaults.color='#8b97ac';
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.font.size=11;
+const gridColor='#1a212f';
+let envChart, chartTH, chartGW, chartEntries, chartDevices;
+
+function baseLineOpts(){
+  return {responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{boxWidth:10,padding:12}}},
+    scales:{x:{grid:{color:gridColor}},y:{grid:{color:gridColor}}},
+    elements:{point:{radius:0},line:{tension:.35,borderWidth:2}}};
+}
+function initCharts(){
+  envChart=new Chart(document.getElementById('envChart'),{
+    type:'line',data:{labels:[],datasets:[
+      {label:'Temp °C',data:[],borderColor:'#fbbf24',backgroundColor:'rgba(251,191,36,.08)',fill:true},
+      {label:'Humidity %',data:[],borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.08)',fill:true}
+    ]},options:baseLineOpts()});
+
+  const hrs=Array.from({length:12},(_,i)=>i+':00');
+  chartTH=new Chart(document.getElementById('chartTH'),{type:'line',data:{labels:hrs,datasets:[
+    {label:'Temp °C',data:hrs.map(()=>+(24+Math.random()*10).toFixed(1)),borderColor:'#fbbf24',fill:false},
+    {label:'Humidity %',data:hrs.map(()=>Math.round(45+Math.random()*35)),borderColor:'#60a5fa',fill:false}
+  ]},options:baseLineOpts()});
+
+  chartGW=new Chart(document.getElementById('chartGW'),{type:'line',data:{labels:hrs,datasets:[
+    {label:'Gas ppm',data:hrs.map(()=>Math.round(120+Math.random()*250)),borderColor:'#fb7185',fill:false},
+    {label:'Water %',data:hrs.map(()=>Math.round(50+Math.random()*45)),borderColor:'#22d3ee',fill:false}
+  ]},options:baseLineOpts()});
+
+  chartEntries=new Chart(document.getElementById('chartEntries'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[
+    {label:'Single',data:[9,11,8,12,10,14,13],backgroundColor:'#34d399'},
+    {label:'Double',data:[1,0,2,1,0,1,2],backgroundColor:'#fb7185'},
+    {label:'Multiple',data:[0,0,1,0,0,0,1],backgroundColor:'#fbbf24'}
+  ]},options:{...baseLineOpts(),scales:{x:{stacked:true,grid:{color:gridColor}},y:{stacked:true,grid:{color:gridColor}}}}});
+
+  chartDevices=new Chart(document.getElementById('chartDevices'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[
+    {label:'AC',data:[6,7,5,8,6,9,7],backgroundColor:'#22d3ee'},
+    {label:'Light',data:[10,9,11,10,12,11,10],backgroundColor:'#fbbf24'},
+    {label:'Fan',data:[4,5,3,6,4,5,6],backgroundColor:'#60a5fa'}
+  ]},options:baseLineOpts()});
+}
+document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active');
+}));
+
+/* ============================================================
+   UPTIME
+============================================================ */
+const startTime=Date.now();
+setInterval(()=>{
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  document.getElementById('uptimeVal').textContent=`${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+},1000);
+
+/* ============================================================
+   INIT + LOOPS
+============================================================ */
+renderOverview();
+renderDevices();
+renderAlerts();
+initCharts();
+addActivity('System initialized · ESP32 connected to MQTT broker');
+pushAlert('blue','🔵','SYSTEM STARTED','Smart Stay Hub dashboard connected to live data stream.');
+
+for(let i=0;i<10;i++) addAttendanceEntry();
+runEntryVerification();
+
+setInterval(updateEnvironment,3000); updateEnvironment();
+setInterval(updateWater,4000); updateWater();
+setInterval(toggleDoorRandom,6000);
+setInterval(addAttendanceEntry,9000);
+setInterval(()=>{secsSinceUpdate=0;},3000);
+</script>
+</body>
+</html>
